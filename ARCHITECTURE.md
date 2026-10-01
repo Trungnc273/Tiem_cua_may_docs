@@ -17,6 +17,6 @@ The current screen does not create an order or claim active store policies. Do n
 
 ## Batch status
 
-- Batch 0 workspace folders and design asset copies: initialized.
+- Batch 0 workspace folders, approved design asset copies, local PostgreSQL Compose config, and a clean baseline migration: initialized.
 - Batch 1 public homepage: visual prototype implemented; awaiting owner visual review.
-- Catalog, cart, admin, production assets, and checkout: not started.
+- API source, catalog, cart, admin, production assets, and checkout: not started.
