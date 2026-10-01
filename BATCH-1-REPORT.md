@@ -9,7 +9,7 @@
 
 ## Implementation
 
-- FE: Next.js App Router, Next 16.3.5 + React 19, TypeScript strict mode, CSS mobile-first. The lockfile is pnpm v9 format and passes `pnpm install --lockfile-only --offline --frozen-lockfile`.
+- FE: Next.js App Router, Next 16.3.5 + React 19, TypeScript strict mode, CSS mobile-first. Node requirement is 22.18+ for the built-in TypeScript test runner. The lockfile is pnpm v9 format and passes frozen lockfile validation.
 - Homepage: owner supplied logo; cloud blue hero; search interaction; six category shortcuts; two-column mobile demo cards with favorites and color swatches; demo campaign panel; service information; desktop navigation/footer.
 - Source logo preserved at `../brand-assets/logo-original.jpg`; FE copy at `../TIEM_CUA_MAY_FE/public/brand/logo.jpg`. Demo hero and four product crops are separate files under `public/demo/`; the full design screenshot is not served by the FE.
 - Vietnamese UI uses system Arial/Segoe UI; text was legible in Chromium captures. Store claims are avoided: card imagery/badges are DEMO, and shipping/returns information says policies are pending.
@@ -18,10 +18,11 @@
 
 ## Quality evidence
 
-- Production build: **passed** using the locally cached Next 15.5.4 runtime before updating the project lock to Next 16.3.5. The exact locked Next 16 runtime has not been installed or built in this offline environment.
-- TypeScript: **passed** (`tsc --noEmit`) against the built prototype.
-- ESLint: **passed, 0 errors / 0 warnings** using the workspace's existing ESLint 9.39.5 + Next config and the Tiệm source. The project dependencies could not be fully installed locally because the offline package store lacks `is-weakref@1.1.1`; the package manifest and lockfile are ready for an online `pnpm install --frozen-lockfile`.
-- Unit tests: **not configured or run** for this visual-only prototype.
+- Production build: **passed** (`pnpm build`) on the exact locked Next 16.3.5.
+- TypeScript: **passed** (`pnpm typecheck`, `tsc --noEmit`).
+- ESLint: **passed, 0 errors / 0 warnings** (`pnpm lint`).
+- Unit tests: **passed, 4/4** (`pnpm test`) for empty search, case-insensitive matching, Vietnamese diacritics, and demo-only badges.
+- Browser smoke: **passed** for empty/no-match/matching search and the favorite toggle.
 - Compose: **passed** `docker compose config --quiet`; the DB container itself was not started.
 - Real Chromium viewport captures show no horizontal page overflow and all six categories/four demo products:
   - [Mobile 390 × 844](../qa/screenshots/homepage-mobile-390x844.png)
@@ -31,9 +32,9 @@
 
 ## Local commits
 
-- FE `main`: `10f9dc9` — `chore: ignore generated TypeScript cache` (homepage is in preceding commit `0b8b3a6`).
+- FE `main`: `ab8452b` — `feat: add demo search and focused unit tests` (includes the homepage and its test suite).
 - BE `main`: `54e21e1` — `chore: start fresh commerce schema baseline`.
-- Workspace `main`: `cc318cd` — `chore: initialize Tiệm Của Mây workspace`.
+- Workspace `main`: `cc318cd` — `chore: initialize Tiệm Của Mây workspace`, including the four Chromium screenshots.
 - DOC `main`: architecture/report commit (see repository HEAD at handoff).
 - Worktree status was clean after the recorded commits; no pushes were made.
 
