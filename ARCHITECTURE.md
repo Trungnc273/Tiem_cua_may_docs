@@ -13,10 +13,13 @@ This is a separate project from MIDORA. No MIDORA remote is configured. The appr
 
 ## Owner gates
 
-The current screen does not create an order or claim active store policies. Do not implement checkout until the owner approves guest/account rules, payment providers, shipping prices/coverage, order lifecycle, returns/refunds, and promotion terms.
+The approved Batch 3 scope permits guest checkout as a manual order request. Online payments, COD/bank-transfer semantics, shipping zones, returns/refunds, customer accounts, and external messaging integrations remain out of scope. Production shipping stays nullable until configured by the owner.
 
 ## Batch status
 
 - Batch 0 workspace folders, approved design asset copies, local PostgreSQL Compose config, and a clean baseline migration: initialized.
 - Batch 1 public homepage: visual prototype implemented; awaiting owner visual review.
-- API source, catalog, cart, admin, production assets, and checkout: not started.
+- Batch 2 catalog: implemented and owner approved.
+- Batch 3 anonymous cart, discount projection, manual order requests, centralized settings, inventory lifecycle, protected admin, and QA: implemented; ready for owner review.
+
+See `BATCH-3-REPORT.md` for scope, architecture, QA evidence, and screenshots.
