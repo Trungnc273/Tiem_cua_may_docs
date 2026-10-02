@@ -42,7 +42,7 @@ Playwright uses the HTTPS URL with a TEST admin account. Keep the tunnel and sta
 
 Run `scripts/backup-staging.ps1`. It creates a timestamped PostgreSQL custom-format dump and a tar archive of the complete product-upload volume, then writes SHA-256 checksums. Treat the pair as one backup set. Monitor free disk space; each product image is capped at 8 MiB, and volume growth follows the number and size of uploaded originals.
 
-For a future production release, run the same paired operations against the production Compose project and its production PostgreSQL/upload volume names, store both artifacts in protected off-host storage, and verify checksums. A database-only dump is incomplete.
+Production product media uses Cloudflare R2 and has no VPS upload volume. A production recovery set must include a protected PostgreSQL dump and a verified copy of the corresponding R2 object set plus its object-key metadata. Test restoration into an isolated database and bucket/prefix before cutover. Define and verify retention, object restore, and key-access procedures with the owner; a database-only dump is incomplete, and these repository scripts do not configure or claim a complete R2 disaster-recovery service. The local staging backup and restore scripts continue to pair PostgreSQL with its filesystem upload volume.
 
 ## Restore drill
 
@@ -50,9 +50,9 @@ Run `scripts/restore-drill.ps1 -BackupDirectory <timestamped-backup> -Slug <uplo
 
 ## Production Compose template
 
-`docker-compose.production.yml` is a separate production runtime template. Fill `.env.production.local` from `.env.production.example`, use owner-controlled URL-safe database credentials, and pin the API and web image tags to the reviewed release SHA (or immutable registry digests). Build the FE image with `API_INTERNAL_URL=http://api:4000` so its same-origin `/api/*` rewrite targets the private API service. The DB and API have no published host ports; only the web binds to loopback for an explicitly configured Cloudflare Tunnel ingress. Run its `migration` profile as a separate step before starting `api` and `web`. It has no fixture seed service or development mounts.
+`docker-compose.production.yml` is a separate production runtime template. Fill `.env.production.local` from `.env.production.example`, use owner-controlled URL-safe database credentials, and pin the API and web image tags to the reviewed release SHA (or immutable registry digests). Build the FE image with `API_INTERNAL_URL=http://api:4000` and the exact `R2_PUBLIC_BASE_URL` build argument so its same-origin `/api/*` rewrite targets the private API and its Next Image allowlist contains only the configured media hostname plus explicit development hosts. Production uses bucket `tiem-cua-may-products`; the API requires R2-only credentials and has no filesystem upload volume. The DB and API have no published host ports; only the web binds to loopback for an explicitly configured Cloudflare Tunnel ingress. Run its `migration` profile as a separate step before starting `api` and `web`. It has no fixture seed service or development mounts.
 
-Use the protected production Admin CLI flow with the production database and `CATALOG_MODE=production`; inject the password through the operator process environment. Do not use `seed-test.ts` or any TEST admin identity in production. Production database and upload-volume backups must be stored together in protected off-host storage; the local backup scripts are intentionally guarded for staging.
+Use the protected production Admin CLI flow with the production database and `CATALOG_MODE=production`; inject the password through the operator process environment. Do not use `seed-test.ts` or any TEST admin identity in production. Production database and R2 object backups must be stored together in protected off-host storage; the local backup scripts are intentionally guarded for staging.
 
 Before any real production launch, repeat the paired restore into a fully isolated environment using the protected production backup. Validate the same records/media, and keep the current production data untouched until an approved cutover plan exists.
 

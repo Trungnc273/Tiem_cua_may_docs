@@ -8,7 +8,7 @@ This is a separate project from MIDORA. No MIDORA remote is configured. The appr
 
 - Public UI: Next.js App Router, TypeScript strict mode, mobile-first responsive CSS.
 - API (later batch): Node.js/TypeScript + Fastify, modular monolith.
-- Data: separate local PostgreSQL database on port 5438 and a new migration history. Store VND prices as integers. Product image bytes live in persistent storage at `/data/uploads/products`; PostgreSQL stores generated media keys and metadata.
+- Data: separate local PostgreSQL database on port 5438 and a new migration history. Store VND prices as integers. TEST/dev product media uses the local filesystem adapter; production uses the isolated Cloudflare R2 bucket `tiem-cua-may-products` through a narrow storage interface. PostgreSQL stores immutable object keys and metadata, while public URLs are derived from the configured media origin.
 - UI prototype uses clearly labeled DEMO product data. Its source imagery is a design reference and must be replaced by separately managed catalog/banner assets before production.
 
 ## Owner gates

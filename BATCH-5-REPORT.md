@@ -43,7 +43,7 @@ Public copy was reviewed for unsupported free shipping, return, online payment s
 - `docker-compose.staging.yml` runs production-mode API/web containers with a dedicated TEST PostgreSQL database. It publishes PostgreSQL only on loopback port 55439; the API has no host port; the web is loopback-only on port 3180.
 - Same-origin Next.js `/api/*` rewrites route HTTPS browser calls to the private API service. The flow is public HTTPS tunnel → local web → private API → private PostgreSQL and product-upload volume.
 - Persistent staging volumes are `tcm_batch5_stage_postgres` and `tcm_batch5_stage_product_uploads`.
-- `docker-compose.production.yml` is a separate runtime template. It accepts release-pinned API/web image references; the DB and API have no published host ports; only web binds to loopback for a future approved tunnel ingress. It has health checks, restart policies, bounded logs, persistent database/media volumes, no hot reload, and no fixture seed service.
+- `docker-compose.production.yml` is a separate runtime template. It accepts release-pinned API/web image references; the DB and API have no published host ports; only web binds to loopback for a future approved tunnel ingress. It has health checks, restart policies, bounded logs, a persistent database volume, no production upload volume, no hot reload, and no fixture seed service.
 - `.env.production.example` contains placeholders only. Production startup requires `TCM_ENVIRONMENT=production`, `CATALOG_MODE=production`, a valid HTTPS public origin and exact CORS allowlist, a DB identity/password, and pinned image references. The production FE image must be built with `API_INTERNAL_URL=http://api:4000` so the server-side same-origin rewrite targets the private API.
 - Migration runs explicitly through the `migration` Compose profile and applies only pending versioned migrations. API boot never resets or seeds a database. `/ready` requires `0004_product_admin_uploads.sql`.
 - `scripts/create-admin.ts` is compiled into the production API image for the operator CLI. Production Admin creation requires production provenance and injected credentials; TEST creation requires the exact local TEST database allowlist. TEST credentials are not committed or auto-created in production.
@@ -55,6 +55,14 @@ Public copy was reviewed for unsupported free shipping, return, online payment s
 - API request logs omit bodies and redact Cookie and Authorization headers. Order PII is absent from URLs and browser storage; Admin detail is access-controlled, and no public order lookup exists. Integration tests cover unauthorized order access and protected Admin PII.
 - Image upload validates supported image bytes, generated storage keys, dimensions, size limits, and resolved storage paths. Media is served from the persistent volume with safe content type, `nosniff`, sandbox CSP, and immutable caching; filesystem paths are not returned.
 - Docker logs rotate at 10 MiB with three files retained. Product files are capped at 8 MiB each. Upload-volume and paired-backup growth should be monitored.
+
+## Owner decision: Cloudflare R2 product media
+
+The implementation keeps the filesystem adapter for TEST/dev and requires a dedicated R2 adapter in production. Production uses bucket `tiem-cua-may-products`, the maintained AWS S3 SDK, and an API-only upload flow. New keys are generated as `products/<productId>/<uuid>.<ext>` and stored in PostgreSQL independently of the public media hostname. Public catalog and order responses derive URLs from `R2_PUBLIC_BASE_URL`; Next.js allows only that exact configured media hostname and explicit local development hosts. No browser R2 write credentials, `r2.dev` production URLs, wildcard host rules, or production upload volume are used.
+
+The versioned `0005_r2_product_media.sql` migration adds key references for product images and future order snapshots. It converts existing generated product-image URLs to keys when present but does not update immutable historical order rows, move files, or delete objects. Older order snapshots keep their original media URL and remain deletion-protected by that URL; new order snapshots retain the object key. No real production media was present in the owner decision, so no bulk media migration was performed. New snapshots resolve the current configured hostname from their preserved key.
+
+Local staging remains on its existing filesystem volume. Production recovery must pair PostgreSQL with the corresponding R2 objects and verify restore in isolation. The repository does not configure R2 versioning, replication, or a complete disaster-recovery service; those retention and recovery controls remain an owner/operator setup requirement.
 - Secret scan covered the workspace and FE/BE/DOC repositories for private-key headers, common GitHub/AWS token shapes, tunnel-token names, and literal DB/Admin password assignments. No committed matches were found. `.env.staging.local`, the generated TEST admin credentials, tunnel logs, and backups remain ignored local files.
 - `pnpm audit --prod` reports **No known vulnerabilities found** for both FE and BE after patching Next.js to `16.3.6` and Fastify to `5.12.5`.
 
@@ -86,7 +94,7 @@ Restore drill passed from that set into new isolated resources, leaving the sour
 - Restore upload volume: `tcm_restore_uploads_20261002090751`
 - Verified readiness, TEST product, variants, uploaded image delivery, Admin login, one order, and store settings.
 
-See `LOCAL-PUBLIC-STAGING.md` for the operator commands and production backup requirements. Production release must take a protected off-host backup pair and complete a separate isolated restore drill before real data cutover.
+See `LOCAL-PUBLIC-STAGING.md` for the operator commands and production backup requirements. Production release must take a protected off-host PostgreSQL and R2 object backup set and complete a separate isolated restore drill before real data cutover.
 
 ## Automated checks
 
@@ -97,6 +105,7 @@ See `LOCAL-PUBLIC-STAGING.md` for the operator commands and production backup re
 - Public HTTPS Playwright journey: passed; 0 browser errors; no 390×844 horizontal overflow.
 - Upload persistence: passed after API restart, API image rebuild/recreate, and web image rebuild/recreate.
 - Paired PostgreSQL/upload-volume backup and isolated restore drill: passed.
+- R2 adapter is isolated behind a mockable client boundary; production R2 smoke has not run because no R2 credentials or approved media hostname were supplied.
 - Dependency audit and secret-pattern scan: passed.
 - `git diff --check`: clean before commit.
 
@@ -106,6 +115,6 @@ Temporary HTTPS staging URL: `https://usr-yellow-attempt-band.trycloudflare.com`
 TEST Admin email: `owner-review-b5@tiemcuamay.test`  
 TEST Admin password: delivered directly to the owner in the completion response; not stored in Git.
 
-Keep the local stack and Quick Tunnel running for review from a real phone over 4G/5G or another external network. The temporary hostname expires when the tunnel process stops. VPS hostname/IP, SSH access, deployment path, production domain, Cloudflare production tunnel details, and any registry credentials are not supplied. The production templates are prepared, but no VPS/domain deployment is authorized at this stage.
+Keep the local stack and Quick Tunnel running for review from a real phone over 4G/5G or another external network. The temporary hostname expires when the tunnel process stops. Production remains stopped. Before Cloudflare setup or VPS deployment, the owner must supply the exact root/storefront/media hostnames, Cloudflare account ID, R2 credentials or authorized R2-only token, VPS hostname/IP and SSH user/access, deployment path, Cloudflare Tunnel/account routing, and any registry credentials. No Cloudflare DNS/R2/Tunnel change, push, or deploy has been made.
 
 **Stop here for owner external-device review. Do not begin Batch 6.**
