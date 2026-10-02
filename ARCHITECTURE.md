@@ -22,5 +22,6 @@ The approved Batch 3 scope permits guest checkout as a manual order request. Onl
 - Batch 2 catalog: implemented and owner approved.
 - Batch 3 anonymous cart, discount projection, manual order requests, centralized settings, inventory lifecycle, protected admin, and QA: implemented; ready for owner review.
 - Batch 4 protected catalog administration, variants, product image lifecycle, inventory editing, persistent uploads, and regression QA: implemented; ready for owner review.
+- Batch 5 production-readiness work is on `batch5/production-readiness-local-staging`; local public staging remains TEST-only and awaits owner external-device review. Separate pinned-image production Compose and operator templates are prepared, but no deployment has been made.
 
-See `BATCH-3-REPORT.md` and `BATCH-4-REPORT.md` for scope, architecture, QA evidence, and screenshots.
+See `BATCH-3-REPORT.md`, `BATCH-4-REPORT.md`, and `BATCH-5-REPORT.md` for scope, architecture, QA evidence, and screenshots. `LOCAL-PUBLIC-STAGING.md` documents the operator runbook.
