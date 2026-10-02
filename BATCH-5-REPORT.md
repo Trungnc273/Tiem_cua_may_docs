@@ -20,7 +20,7 @@ Batch 5 local branch: `batch5/production-readiness-local-staging`.
 | Repository | Batch 5 commit |
 | --- | --- |
 | FE | `c8c516dc66f46b2fec22d7143a57549b17c11a51` |
-| BE | `f40f92693f882df0c2499f000e04573993e1bf63` |
+| BE | `393d756584d53d0f8f10cd422c9fdb2fb517b739` |
 | DOC | This report and runbook commit |
 | Workspace / QA | Production/staging Compose, backup tools, and final screenshots committed on the Batch 5 branch |
 
@@ -73,17 +73,17 @@ Screenshots in `../qa/batch5/`:
 
 ## Backup and restore evidence
 
-The final TEST backup set is `backups/stage-20261002-085552/`. It contains a PostgreSQL custom-format dump and `product-uploads.tar.gz`; SHA-256 manifest:
+The final TEST backup set is `backups/stage-20261002-090733/`. It contains a PostgreSQL custom-format dump and `product-uploads.tar.gz`; SHA-256 manifest:
 
 ```text
-477b0129e1ec729d6132dd116205506d49cf728e02c60238a0b76b93a86a66da  product-uploads.tar.gz
-0b653b8a1a68426301e22395d8a8f9f06ce5136b9518308596b5434051aa296f  tiem-cua-may-20261002-085552.dump
+e8a21ec7cc4ddbc4592b5f399164c3f056cc5b475c09f147e40774f53ad1a7fa  product-uploads.tar.gz
+eb8ac642e8217929559dd5e23411db031e4024975f927db90ee8a4dcc2cf654e  tiem-cua-may-20261002-090733.dump
 ```
 
 Restore drill passed from that set into new isolated resources, leaving the source staging DB/volume unchanged:
 
-- Restore DB: `tiem_cua_may_restore_stage_20261002085614_stage`
-- Restore upload volume: `tcm_restore_uploads_20261002085614`
+- Restore DB: `tiem_cua_may_restore_stage_20261002090751_stage`
+- Restore upload volume: `tcm_restore_uploads_20261002090751`
 - Verified readiness, TEST product, variants, uploaded image delivery, Admin login, one order, and store settings.
 
 See `LOCAL-PUBLIC-STAGING.md` for the operator commands and production backup requirements. Production release must take a protected off-host backup pair and complete a separate isolated restore drill before real data cutover.
