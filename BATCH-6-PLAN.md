@@ -38,7 +38,7 @@ Owner finalized Batch 6 v1 on 2026-10-03. This replaces the earlier distance/map
 - Verify FE mobile checkout at 390×844, public root/www/media behavior, Admin login/order operations, R2, and that SUMFLOW remains unchanged.
 - Back up the production database before migration. Build the exact approved Batch 6 SHA and deploy only Tiệm Của Mây services. Do not restart or modify SUMFLOW.
 
-## Current evidence
+## Batch 6 pre-release evidence (captured 2026-10-03)
 
 - Approved Batch 5 source SHAs: FE `34daebef96a582240e726ba511dc9b1e16468ae6`, BE `abb8a7e89a0d6b6171f7e766f95ca470f8bed7f7`, DOC `6a0af54bb9c01b95f9cfe7453ac4c59045d5b08c`.
 - Current checked-out heads before Batch 6 commits: FE `69c098f12ee9a17715574c1795e2be047923d36a`, BE `abb8a7e89a0d6b6171f7e766f95ca470f8bed7f7`, DOC `6a0af54bb9c01b95f9cfe7453ac4c59045d5b08c`. All three repositories are on `feat/distance-shipping-brevo-notifications`.
@@ -48,4 +48,4 @@ Owner finalized Batch 6 v1 on 2026-10-03. This replaces the earlier distance/map
 - Real Playwright passed against the TEST API/database at 390×844 and 1440×900. It covered storefront, product detail, cart, estimate and no-estimate checkout, order creation, admin login/detail, carrier/final fee/tracking, and `NEW → CONFIRMED`. Result: no horizontal overflow, console errors, failed requests, cross-origin API calls, insecure external assets, or HTTP 5xx; `/health` and `/ready` returned 200.
 - Browser evidence is in `qa/screenshots/batch6/`. The confirmed order screenshot shows carrier, tracking number, final shipping fee, and server-calculated total.
 - No real Brevo email has been sent. The TEST API ran without a Brevo key; unit/integration tests used a fake adapter and exercised outbox success, retry, and persistence.
-- Batch 6 changes remain uncommitted and unpushed; no Batch 6 release SHA exists yet. Production database backup, production Admin bootstrap, production Brevo secret validation, migration application, service deployment, www policy, public/R2 smoke, and final protected-service verification remain pending. Do not report READY FOR OWNER REVIEW until each authorized production gate has evidence.
+- At this evidence snapshot, Batch 6 changes had not yet been released and the listed production gates were pending. This is historical status, not the current production state. The owner-approved V1 production release and current gate results are recorded in [V1-PRODUCTION-RELEASE.md](V1-PRODUCTION-RELEASE.md).
