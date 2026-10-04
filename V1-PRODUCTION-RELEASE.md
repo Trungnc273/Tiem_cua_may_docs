@@ -1,6 +1,7 @@
 # Midora V1 production release
 
-Status: **accepted; production deployed; technical shop-open gate passed**  
+Status: **accepted; production deployed; technical shop-open gate passed**
+
 Verified: 2026-10-04
 
 ## Production identity
